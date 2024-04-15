@@ -1,8 +1,11 @@
 package org.example
 
 import readPdf
+import java.io.File
+
 
 fun main() {
+    createDirs()
     var menuInput = 0
     menuInput = menu()
     if (menuInput == 1) {
@@ -28,4 +31,19 @@ fun menu(): Int {
     }
 
     return userInput
+}
+
+fun createDirs() {
+    val inputDir = File("filesToRead")
+    val outputDir = File("extractedText")
+
+    // Check if input directory exists and is a directory
+    if (!inputDir.exists() || !inputDir.isDirectory) {
+        inputDir.mkdirs()
+    }
+
+    // Check if output directory exists or create it if it doesn't
+    if (!outputDir.exists() || !outputDir.isDirectory) {
+        outputDir.mkdirs()
+    }
 }

@@ -34,15 +34,15 @@ fun readPdf(){
     val inputDir = File("filesToRead")
     val outputDir = File("extractedText")
 
-    //outputDir.mkdirs() // create directories
     // Check if input directory exists and is a directory
     if (!inputDir.exists() || !inputDir.isDirectory) {
-        println("Input directory not found or is not a directory.")
-        return
+        println("Folder not found.")
+        inputDir.mkdirs()
     }
 
+
     // Check if output directory exists or create it if it doesn't
-    if (!outputDir.exists()) {
+    if (!outputDir.exists() || !outputDir.isDirectory) {
         outputDir.mkdirs()
     }
 
