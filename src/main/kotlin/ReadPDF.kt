@@ -29,7 +29,7 @@ import java.io.File
     }
 }*/
 
-fun readPdf(){
+fun readPDF(){
 
     val inputDir = File("filesToRead")
     val outputDir = File("extractedText")
@@ -39,7 +39,6 @@ fun readPdf(){
         println("Folder not found.")
         inputDir.mkdirs()
     }
-
 
     // Check if output directory exists or create it if it doesn't
     if (!outputDir.exists() || !outputDir.isDirectory) {
@@ -74,6 +73,7 @@ fun readPdf(){
             } finally {
                 // Close the document
                 document.close()
+
                 counter += 1
                 println("$counter/$nrOfFiles")
             }

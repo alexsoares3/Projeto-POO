@@ -1,6 +1,7 @@
 package org.example
 
-import readPdf
+import readPDF
+import readPPXT
 import java.io.File
 
 
@@ -10,7 +11,8 @@ fun main() {
     menuInput = menu()
     if (menuInput == 1) {
         //readPdf("Aula_2 Introducao_OPP.pdf")
-        readPdf()
+        readPDF()
+        readPPXT()
     } else if (menuInput == 3) {
         return
     }
