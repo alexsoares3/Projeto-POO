@@ -14,11 +14,16 @@ class FilePPTX(path: File, wordList: Map<String, Int>?) : File_base(path, wordLi
         try {
             // Extract text from the slideshows
             val text = SlideShowExtractor(document).getText()
-            processWords(text)
 
-        } finally {
             // Close the PowerPoint file
             document.close()
+
+            // Start processing words
+            processWords(text)
+
+        } catch (e: Exception) {
+            // Handle exceptions
+            e.printStackTrace()
         }
     }
 

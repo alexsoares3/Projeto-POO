@@ -1,6 +1,5 @@
 package org.example
 
-import File_base
 import processFiles
 import java.io.File
 
@@ -11,19 +10,16 @@ import java.io.File
 fun main() {
     createDirs()
 
-    var menuInput = 0
-    menuInput = menu()
+    val menuInput = menu()
     if (menuInput == 1) {
 
-    val list = processFiles()
+        val list = processFiles()
 
-    println(list)
+        println(list)
 
-    list.forEach { file ->
-        file.readFile()
-        println("${file.path.path} - ${file.wordList}")
-    }
-
+        list.forEach { file ->
+            println("${file.path.path} - ${file.wordList}")
+        }
 
     } else if (menuInput == 3) {
         return
@@ -48,7 +44,7 @@ fun menu(): Int {
 
 fun createDirs() {
     val inputDir = File("filesToRead")
-    val outputDir = File("extractedText")
+    val outputDir = File("processedFiles")
 
     // Check if input directory exists and is a directory
     if (!inputDir.exists() || !inputDir.isDirectory) {
