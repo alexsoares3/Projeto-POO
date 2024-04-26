@@ -1,18 +1,30 @@
 package org.example
 
-import readPDF
-import readPPXT
+import File_base
+import processFiles
 import java.io.File
+
+//Neste momento ao chamarem processFiles() ele le todos os ficheiros na pasta e atribui a classe conforme a extensao. Ao ser atribuido a uma
+// classe vai ser feita automaticamente a leitura/extracao do texto e define o campo wordList com a lista/nr de palavras. Ja nao exporta o texto para .txt
 
 
 fun main() {
     createDirs()
+
     var menuInput = 0
     menuInput = menu()
     if (menuInput == 1) {
-        //readPdf("Aula_2 Introducao_OPP.pdf")
-        readPDF()
-        readPPXT()
+
+    val list = processFiles()
+
+    println(list)
+
+    list.forEach { file ->
+        file.readFile()
+        println("${file.path.path} - ${file.wordList}")
+    }
+
+
     } else if (menuInput == 3) {
         return
     }
@@ -27,7 +39,6 @@ fun menu(): Int {
         println("1 - Adicionar ficheiros a BD")
         println("2 - Procurar")
         println("3 - Sair")
-
 
         userInput = readln().toInt()
     }
