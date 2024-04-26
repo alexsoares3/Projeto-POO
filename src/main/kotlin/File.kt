@@ -33,7 +33,7 @@ abstract class File_base(var path: File, var wordList: Map<String, Int>?) {
     }
 }
 
-fun moveFiles() {
+fun moveFiles(skippedFiles : List<String>) {
     val inputDir = File("filesToRead")
     val outputDir = File("processedFiles")
 
@@ -47,16 +47,17 @@ fun moveFiles() {
 
     // Move each file to the destination directory
     files?.forEach { file ->
-        val destinationFile = File(outputDir, file.name)
+        if (!skippedFiles.contains(file.name)){
+            val destinationFile = File(outputDir, file.name)
 
-        try {
-            Files.move(file.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-        } catch (e: FileNotFoundException) {
-            println("File not found: ${file.name}.")
-        } catch (e: Exception) {
-            e.printStackTrace()
+            try {
+                Files.move(file.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            } catch (e: FileNotFoundException) {
+                println("File not found: ${file.name}.")
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
-
     }
 }
 
