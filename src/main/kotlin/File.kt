@@ -1,9 +1,6 @@
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
-import java.io.FileNotFoundException
 
-abstract class File_base(var path: File, var wordList: Map<String, Int>?) {
+abstract class File_base(var path: File, var wordList: Map<String, Int>?, var processed : Boolean = false) {
     abstract fun readFile()
 
     //Splits the text in lines, removes non-word characters, removes spaces and converts to lowercase. Adds and counts words in a Map<Word, NrTimes>
@@ -30,34 +27,6 @@ abstract class File_base(var path: File, var wordList: Map<String, Int>?) {
             }
         }
         wordList = wordCountMap
+        processed = true
     }
 }
-
-fun moveFiles(skippedFiles : List<String>) {
-    val inputDir = File("filesToRead")
-    val outputDir = File("processedFiles")
-
-    // Create the destination directory if it doesn't exist
-    if (!outputDir.exists()) {
-        outputDir.mkdirs()
-    }
-
-    // List files in the source directory
-    val files = inputDir.listFiles()
-
-    // Move each file to the destination directory
-    files?.forEach { file ->
-        if (!skippedFiles.contains(file.name)){
-            val destinationFile = File(outputDir, file.name)
-
-            try {
-                Files.move(file.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            } catch (e: FileNotFoundException) {
-                println("File not found: ${file.name}.")
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-}
-

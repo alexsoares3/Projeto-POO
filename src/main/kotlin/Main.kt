@@ -1,10 +1,14 @@
 package org.example
-
+import getAllFiles
+import getConnection
 import processFiles
+import searchSimilarWords
 import java.io.File
+import kotlin.system.exitProcess
 
 //Neste momento ao chamarem processFiles() ele le todos os ficheiros na pasta e atribui a classe conforme a extensao. Ao ser atribuido a uma
-// classe vai ser feita automaticamente a leitura/extracao do texto e define o campo wordList com a lista/nr de palavras. Ja nao exporta o texto para .txt
+// classe vai ser feita automaticamente a leitura/extracao do texto e define o campo wordList com a lista/nr de palavras. Depois exporta para a db
+//Podem usar os ficheiros em testSample.rar para testar
 
 
 fun main() {
@@ -12,17 +16,28 @@ fun main() {
 
     val menuInput = menu()
     if (menuInput == 1) {
+        // processFiles() > readFile() from all objects > processWords() from all objects > moveFiles() > insertFilesInDB()
+        processFiles()
+        //getAllFiles() to get every file available in the database
+        println(getAllFiles())
+        main()
 
-        val list = processFiles()
-
-        println(list)
-
-        list.forEach { file ->
-            println("${file.path.path} - ${file.wordList}")
+    } else if (menuInput == 2) {
+        //Search by word
+        println("Search for: ")
+        val search = readln()
+        val searchResult = searchSimilarWords(search)
+        if (searchResult.isNotEmpty()) {
+            searchResult.forEach { file ->
+                println("${file.second} - ${file.third}")
+            }
+        } else {
+            println("Nothing found.")
         }
-
+        main()
     } else if (menuInput == 3) {
-        return
+        //Close app
+        exitProcess(0)
     }
 }
 
@@ -42,7 +57,7 @@ fun menu(): Int {
     return userInput
 }
 
-fun createDirs() {
+fun createDirs() { //Create necessary directories (on startup)
     val inputDir = File("filesToRead")
     val outputDir = File("processedFiles")
 
