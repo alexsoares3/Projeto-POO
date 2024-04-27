@@ -14,30 +14,31 @@ import kotlin.system.exitProcess
 fun main() {
     createDirs()
 
-    val menuInput = menu()
-    if (menuInput == 1) {
-        // processFiles() > readFile() from all objects > processWords() from all objects > moveFiles() > insertFilesInDB()
-        processFiles()
-        //getAllFiles() to get every file available in the database
-        println(getAllFiles())
-        main()
+    while (true) {
+        val menuInput = menu()
+        if (menuInput == 1) {
+            // processFiles() > readFile() from all objects > processWords() from all objects > moveFiles() > insertFilesInDB()
+            processFiles()
+            //getAllFiles() to get every file available in the database
+            println(getAllFiles())
 
-    } else if (menuInput == 2) {
-        //Search by word
-        println("Search for: ")
-        val search = readln()
-        val searchResult = searchSimilarWords(search)
-        if (searchResult.isNotEmpty()) {
-            searchResult.forEach { file ->
-                println("${file.second} - ${file.third}")
+        } else if (menuInput == 2) {
+            //Search by word
+            println("Search for: ")
+            val search = readln()
+            val searchResult = searchSimilarWords(search)
+            if (searchResult.isNotEmpty()) {
+                searchResult.forEach { file ->
+                    println("${file.second} - ${file.third}")
+                }
+            } else {
+                println("Nothing found.")
             }
-        } else {
-            println("Nothing found.")
+
+        } else if (menuInput == 3) {
+            //Close app
+            exitProcess(0)
         }
-        main()
-    } else if (menuInput == 3) {
-        //Close app
-        exitProcess(0)
     }
 }
 
@@ -51,7 +52,11 @@ fun menu(): Int {
         println("2 - Procurar")
         println("3 - Sair")
 
-        userInput = readln().toInt()
+        try {
+            userInput = readLine()?.toInt() ?: 0
+        } catch (e: NumberFormatException) {
+            println("Escolha uma das opcoes disponiveis.")
+        }
     }
 
     return userInput

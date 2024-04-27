@@ -44,3 +44,4 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+src/main/kotlin/database/database.db
