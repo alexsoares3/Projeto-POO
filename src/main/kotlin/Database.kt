@@ -15,7 +15,7 @@ fun createTables() {
     val statement = connection.createStatement()
     statement.executeUpdate("""
         CREATE TABLE IF NOT EXISTS files (
-            id INT PRIMARY KEY,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT
         )
     """.trimIndent())

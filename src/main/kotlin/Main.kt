@@ -64,6 +64,8 @@ fun menu(): Int {
 fun createDirs() { //Create necessary directories (on startup)
     val inputDir = File("filesToRead")
     val outputDir = File("processedFiles")
+    val databaseDir = File("database")
+
 
     // Check if input directory exists and is a directory
     if (!inputDir.exists() || !inputDir.isDirectory) {
@@ -73,5 +75,10 @@ fun createDirs() { //Create necessary directories (on startup)
     // Check if output directory exists or create it if it doesn't
     if (!outputDir.exists() || !outputDir.isDirectory) {
         outputDir.mkdirs()
+    }
+
+    // Check if database directory exists or create it if it doesn't
+    if (!databaseDir.exists() || !databaseDir.isDirectory) {
+        databaseDir.mkdirs()
     }
 }
