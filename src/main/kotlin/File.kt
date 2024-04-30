@@ -15,8 +15,9 @@ abstract class File_base(var path: File, var wordList: Map<String, Int>?, var pr
             val words = line.split("\\W+".toRegex()) // Split by non-word characters
 
             for (word in words) {
+                println(word)
                 val sanitizedWord = word.trim().lowercase() // Remove whitespace and convert to lowercase
-                if (sanitizedWord.isNotEmpty() && sanitizedWord.length > 2) { // Check if it's not empty
+                if (sanitizedWord.isNotEmpty() && sanitizedWord.length > 2) { // Check if it's not empty and over 2 chars
                     if (!wordCountMap.containsKey(sanitizedWord)) { // Check if the word is already in the dictionary, if not add it and set its value to 1
                         wordCountMap[sanitizedWord] = 1
                     } else {

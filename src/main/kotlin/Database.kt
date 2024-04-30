@@ -109,46 +109,56 @@ fun getAllFiles(): List<Pair<String, Int>> {
     return fileList
 }
 
-// Searches for words similar to the word provided. Returns list with files it was found in and the word that matches with the search word
-fun searchSimilarWords(word: String): List<Triple<Int, String, String>> {
-    // List to store similar words found in files
-    val similarWordsFiles = mutableListOf<Triple<Int, String, String>>()
+// This function is used to search for multiple words in the files.
+// It takes a string of words as input, splits it into a list of words, and then searches for each word in the files.
+fun searchMultipleWords(words: String): List<Pair<String, List<String>>> {
+    // Split the input string into a list of words
+    val wordList = words.split(" ")
 
-    // Obtain a database connection
+    // Get a connection to the database
     val connection = getConnection()
 
-    // SQL query to search for similar words in files
-    val sql = """
-        SELECT f.id, f.name, w.word
-        FROM files f
-        INNER JOIN file_words w ON f.id = w.file_id
-        WHERE w.word LIKE ?
-        GROUP BY f.id, f.name, w.word
-        ORDER BY LENGTH(w.word) ASC
-    """.trimIndent()
+    // List to store the search results
+    val fileList = mutableListOf<Pair<String, List<String>>>()
 
-    // Prepare SQL statement with parameter for the word
-    val statement: PreparedStatement = connection.prepareStatement(sql)
-    statement.setString(1, "%$word%")
-
-    // Execute SQL query
-    val resultSet: ResultSet = statement.executeQuery()
-
-    // Iterate over the result set
-    while (resultSet.next()) {
-        // Extract file ID, file name, and similar word found
-        val fileId = resultSet.getInt("id")
-        val fileName = resultSet.getString("name")
-        val foundWord = resultSet.getString("word")
-
-        // Add the extracted information to the list
-        similarWordsFiles.add(Triple(fileId, fileName, foundWord))
+    // For each word in the wordList, create a subquery that selects the names of files that contain the word
+    val subQueries = wordList.map { word ->
+        """
+        SELECT f.name
+        FROM files AS f
+        LEFT JOIN file_words AS w ON f.id = w.file_id
+        WHERE w.word LIKE '%$word%'
+        """.trimIndent()
     }
 
-    // Close result set and statement
+    // Join the subqueries using INTERSECT to get the names of files that contain all the words in the wordList
+    val sql = subQueries.joinToString(" INTERSECT ")
+
+    // Prepare the SQL statement
+    val statement: PreparedStatement = connection.prepareStatement(sql)
+
+    // Execute the SQL query and get the result set
+    val resultSet: ResultSet = statement.executeQuery()
+
+    // Store the names of the files that contain all the words (or similar) in the wordList
+    val fileWordsMap = mutableMapOf<String, MutableList<String>>()
+
+    // Iterate over the result set and add the names of the files to the fileWordsMap
+    while (resultSet.next()) {
+        val path = resultSet.getString("name")
+        fileWordsMap.getOrPut(path) { mutableListOf() }
+    }
+
+    // Close the result set and the statement
     resultSet.close()
     statement.close()
 
-    // Return the list of similar words found in files
-    return similarWordsFiles
+    // Iterate over the fileWordsMap and add the file names and the wordList to the fileList
+    // _ is a placeholder for the value, which is not used in this case
+    for ((fileName, _) in fileWordsMap) {
+        fileList.add(fileName to wordList)
+    }
+
+    // Return the fileList
+    return fileList
 }

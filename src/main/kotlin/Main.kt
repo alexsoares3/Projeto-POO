@@ -2,6 +2,7 @@ package org.example
 import getAllFiles
 import getConnection
 import processFiles
+import searchMultipleWords
 import searchSimilarWords
 import java.io.File
 import kotlin.system.exitProcess
@@ -24,15 +25,25 @@ fun main() {
 
         } else if (menuInput == 2) {
             //Search by word
-            println("Search for: ")
+            /*println("Search for: ")
             val search = readln()
             val searchResult = searchSimilarWords(search)
             if (searchResult.isNotEmpty()) {
                 searchResult.forEach { file ->
-                    println("${file.second} - ${file.third}")
+                    println(file)
                 }
             } else {
                 println("Nothing found.")
+            }*/
+
+            println("Search for: ")
+            val searchQuery = readln()
+            val multSearchResult = searchMultipleWords(searchQuery)
+            println("Found ${multSearchResult.size} matching files.")
+            if (multSearchResult.isNotEmpty()) {
+                multSearchResult.forEach { file ->
+                    println(file)
+                }
             }
 
         } else if (menuInput == 3) {
