@@ -111,7 +111,7 @@ fun getAllFiles(): List<Pair<String, Int>> {
 
 // This function is used to search for multiple words in the files.
 // It takes a string of words as input, splits it into a list of words, and then searches for each word in the files.
-fun searchMultipleWords(words: String): List<Pair<String, List<String>>> {
+fun searchDB(words: String): List<Pair<String, List<String>>> {
     // Split the input string into a list of words
     val wordList = words.split(" ")
 
