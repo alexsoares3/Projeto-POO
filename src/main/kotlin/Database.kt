@@ -124,15 +124,15 @@ fun searchDB(words: String): List<Pair<String, List<String>>> {
     // For each word in the wordList, create a subquery that selects the names of files that contain the word
     val subQueries = wordList.map { word ->
         """
-        SELECT f.name
+        SELECT f.name, w.word
         FROM files AS f
         LEFT JOIN file_words AS w ON f.id = w.file_id
         WHERE w.word LIKE '%$word%'
         """.trimIndent()
     }
 
-    // Join the subqueries using INTERSECT to get the names of files that contain all the words in the wordList
-    val sql = subQueries.joinToString(" INTERSECT ")
+    // Join the subqueries using union to get the names of files that contain any of the words in the wordList
+    val sql = subQueries.joinToString(" UNION ")
 
     // Prepare the SQL statement
     val statement: PreparedStatement = connection.prepareStatement(sql)
@@ -143,10 +143,11 @@ fun searchDB(words: String): List<Pair<String, List<String>>> {
     // Store the names of the files that contain all the words (or similar) in the wordList
     val fileWordsMap = mutableMapOf<String, MutableList<String>>()
 
-    // Iterate over the result set and add the names of the files to the fileWordsMap
+    // Iterate over the result set and add the names of the files and the words to the fileWordsMap
     while (resultSet.next()) {
         val path = resultSet.getString("name")
-        fileWordsMap.getOrPut(path) { mutableListOf() }
+        val word = resultSet.getString("word")
+        fileWordsMap.getOrPut(path) { mutableListOf() }.add(word)
     }
 
     // Close the result set and the statement
@@ -154,9 +155,10 @@ fun searchDB(words: String): List<Pair<String, List<String>>> {
     statement.close()
 
     // Iterate over the fileWordsMap and add the file names and the wordList to the fileList
-    // _ is a placeholder for the value, which is not used in this case
-    for ((fileName, _) in fileWordsMap) {
-        fileList.add(fileName to wordList)
+    for ((fileName, words) in fileWordsMap) {
+        if (words.size >= wordList.size) {
+            fileList.add(fileName to words)
+        }
     }
 
     // Return the fileList
