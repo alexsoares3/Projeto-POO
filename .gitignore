@@ -11,9 +11,6 @@ build/
 .idea/compiler.xml
 .idea/libraries/
 *.iws
-*.pdf
-*.pptx
-*.txt
 *.iml
 *.ipr
 out/
@@ -45,4 +42,10 @@ bin/
 ### Mac OS ###
 .DS_Store
 src/main/kotlin/database/database.db
+
+### Files ###
 database/database.db
+*.pdf
+*.pptx
+*.txt
+*.docx

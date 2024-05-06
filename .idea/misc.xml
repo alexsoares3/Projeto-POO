@@ -7,5 +7,5 @@
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="web" url="file://$PROJECT_DIR$" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.8" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="openjdk-21" project-jdk-type="JavaSDK" />
 </project>
