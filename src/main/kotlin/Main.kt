@@ -12,6 +12,7 @@ import kotlin.system.exitProcess
 
 
 fun main() {
+    //Create necessary directories (on startup)
     createDirs()
 
     while (true) {
@@ -67,7 +68,7 @@ fun createDirs() { //Create necessary directories (on startup)
     val databaseDir = File("database")
 
 
-    // Check if input directory exists and is a directory
+    // Check if input directory exists or create it if it doesn't
     if (!inputDir.exists() || !inputDir.isDirectory) {
         inputDir.mkdirs()
     }

@@ -1,7 +1,6 @@
 import java.sql.*
 
 // Quando tem muitos ficheiros o envio para a db demora um bocado (optimizar fun insertFilesInDB()?)
-// Adicionar procura por varias palavras?
 
 // Start connection to DB
 fun getConnection(): Connection {
@@ -30,6 +29,8 @@ fun createTables() {
     """.trimIndent())
 
     statement.close()
+    // Close connection
+    connection.close()
 }
 
 // Iterates through all files in fileList then iterates through each file's words and if the word has more than 2 chars it gets added to the database.
@@ -105,6 +106,8 @@ fun getAllFiles(): List<Pair<String, Int>> {
 
     resultSet.close()
     statement.close()
+    // Close connection
+    connection.close()
 
     return fileList
 }
@@ -153,6 +156,8 @@ fun searchDB(words: String): List<Pair<String, List<String>>> {
     // Close the result set and the statement
     resultSet.close()
     statement.close()
+    // Close connection
+    connection.close()
 
     // Iterate over the fileWordsMap and add the file names and the wordList to the fileList
     for ((fileName, words) in fileWordsMap) {

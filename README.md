@@ -2,11 +2,12 @@
 
 ## Description
 
-This project is a powerful tool for managing and searching through a collection of PDF and PPTX files. It is particularly useful for students, researchers, and anyone who needs to manage and search through a large number of documents. The project is built using Kotlin, Java, and Gradle.
+This project is a tool for managing and searching through a collection of PDF, PPTX and DOCX files. 
+The application allows you to dump a bunch of files into a specific directory, add the contents of these files to a database, and then search for specific content across all the dumped files.
 
 ## Features
 
-- **File Dumping**: You can dump a bunch of PDF and PPTX files into a specific directory.
+- **File Dumping**: You can dump a bunch of PDF, PPTX and DOCX files into a specific directory.
 - **Database Management**: The contents of these files are added to a database, allowing for efficient management and retrieval.
 - **Content Search**: The application allows you to search for specific content across all the dumped files.
 
@@ -39,7 +40,7 @@ Follow these steps to install the application:
 
 ## Usage
 
-1. Dump your PDF and PPTX files into the `filesToRead` directory.
+1. Dump your PDF, PPTX and DOCX files into the `filesToRead` directory.
 2. Run the application. This will add the contents of the files to the database.
 3. Use the `search` function to search for specific content. The function takes a string of words as input, splits it into a list of words, and then searches for each word in the files.
 

@@ -3,8 +3,6 @@ import java.io.FileNotFoundException
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
-//Falta processar ficheiros docx
-
 //Reads all files in the input folder and assigns them classes based on their extension
 // processFiles() > readFile() from all objects > processWords() from all objects > moveFiles() > insertFilesInDB()
 // Every time a File is instantiated the File.readFile() runs, then File.processWords() runs. Files are then moved to a different folder.
