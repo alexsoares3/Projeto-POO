@@ -47,6 +47,13 @@ fun insertFilesInDB(fileList: List<File_base>) {
     val insertFileStatement = connection.prepareStatement(insertFileSql, Statement.RETURN_GENERATED_KEYS)
     val insertWordStatement = connection.prepareStatement(insertWordSql)
 
+
+    // Transaction will make everything be inserted at once instead of one by one
+    // Changes are first stored in memory and then committed to the database
+    // Tested with 250 files and was faster than inserting 50 files previously
+    // Start transaction
+    connection.autoCommit = false
+
     for (file in fileList) {
         // Insert file information
         insertFileStatement.setString(1, file.path.name)
@@ -74,6 +81,9 @@ fun insertFilesInDB(fileList: List<File_base>) {
 
     // Execute batch insert for word counts
     insertWordStatement.executeBatch()
+
+    // Commit transaction
+    connection.commit()
 
     // Close statements
     insertFileStatement.close()
