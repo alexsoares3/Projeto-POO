@@ -49,3 +49,5 @@ database/database.db
 *.pptx
 *.txt
 *.docx
+
+!pdf_test.pdf
