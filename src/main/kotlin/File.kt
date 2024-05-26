@@ -12,7 +12,7 @@ abstract class File_base(var path: File, var wordList: Map<String, Int>?, var pr
         val lines = text.split("\n")
 
         for (line in lines) {
-            val words = line.split("\\W+".toRegex()) // Split by non-word characters
+            val words = line.split("[^\\w-]+".toRegex()) // Split by non-word characters
 
             for (word in words) {
                 val sanitizedWord = word.trim().lowercase() // Remove whitespace and convert to lowercase
