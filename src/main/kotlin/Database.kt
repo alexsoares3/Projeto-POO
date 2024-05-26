@@ -124,7 +124,14 @@ fun getAllFiles(): List<Pair<String, Int>> {
 
 // This function is used to search for multiple words in the files.
 // It takes a string of words as input, splits it into a list of words, and then searches for each word in the files.
-fun searchDB(words: String): List<Pair<String, List<String>>> {
+fun searchDB(words: String): List<Triple<String, List<String>, Int>> {
+
+    // Return empty list if input is empty
+    // Not sure if necessary, since it might be useful to check what files are stored
+    /*if (words.isBlank()) {
+        return emptyList()
+    }*/
+
     // Split the input string into a list of words
     val wordList = words.split(" ")
 
@@ -132,12 +139,12 @@ fun searchDB(words: String): List<Pair<String, List<String>>> {
     val connection = getConnection()
 
     // List to store the search results
-    val fileList = mutableListOf<Pair<String, List<String>>>()
+    val fileList = mutableListOf<Triple<String, List<String>, Int>>()
 
     // For each word in the wordList, create a subquery that selects the names of files that contain the word
     val subQueries = wordList.map { word ->
         """
-        SELECT f.name, w.word
+        SELECT f.name, w.word, w.count
         FROM files AS f
         LEFT JOIN file_words AS w ON f.id = w.file_id
         WHERE w.word LIKE '%$word%'
@@ -150,17 +157,31 @@ fun searchDB(words: String): List<Pair<String, List<String>>> {
     // Prepare the SQL statement
     val statement: PreparedStatement = connection.prepareStatement(sql)
 
+    // Start transaction
+    connection.autoCommit = false
     // Execute the SQL query and get the result set
     val resultSet: ResultSet = statement.executeQuery()
 
+
     // Store the names of the files that contain all the words (or similar) in the wordList
-    val fileWordsMap = mutableMapOf<String, MutableList<String>>()
+    val fileWordsMap = mutableMapOf<String, Pair<MutableList<String>, Int>>()
 
     // Iterate over the result set and add the names of the files and the words to the fileWordsMap
     while (resultSet.next()) {
+        // Get the necessary values from the result set
         val path = resultSet.getString("name")
         val word = resultSet.getString("word")
-        fileWordsMap.getOrPut(path) { mutableListOf() }.add(word)
+        val count = resultSet.getInt("count")
+
+        // Get the current pair from the fileWordsMap or create a new pair if it doesn't exist
+        var currentPair = fileWordsMap.getOrPut(path) { Pair(mutableListOf(), 0) }
+
+        // Add the word to the list of words and update the count
+        currentPair.first.add(word)
+        currentPair = Pair(currentPair.first, currentPair.second + count)
+
+        // Update the filewordsmap with the new pair
+        fileWordsMap[path] = currentPair
     }
 
     // Close the result set and the statement
@@ -170,11 +191,15 @@ fun searchDB(words: String): List<Pair<String, List<String>>> {
     connection.close()
 
     // Iterate over the fileWordsMap and add the file names and the wordList to the fileList
-    for ((fileName, words) in fileWordsMap) {
-        if (words.size >= wordList.size) {
-            fileList.add(fileName to words)
+    for ((fileName, pair) in fileWordsMap) {
+        // Check if there are the same amount or more of words found and words searched
+        if (pair.first.size >= wordList.size) {
+            fileList.add(Triple(fileName, pair.first, pair.second))
         }
     }
+
+    // Sort filelist based on word count (highest to lowest)
+    fileList.sortByDescending { it.third }
 
     // Return the fileList
     return fileList

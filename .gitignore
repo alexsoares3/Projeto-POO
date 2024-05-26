@@ -51,3 +51,4 @@ database/database.db
 *.docx
 
 !pdf_test.pdf
+.idea/dataSources.xml
