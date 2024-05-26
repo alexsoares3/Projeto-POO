@@ -3,6 +3,7 @@ import getAllFiles
 import getConnection
 import processFiles
 import searchDB
+import createDirectories
 import java.io.File
 import kotlin.system.exitProcess
 
@@ -12,8 +13,8 @@ import kotlin.system.exitProcess
 
 
 fun main() {
-    //Create necessary directories (on startup)
-    createDirs()
+    //Create necessary directories on startup
+    createDirectories()
 
     while (true) {
         val menuInput = menu()
@@ -30,8 +31,9 @@ fun main() {
             val searchResult = searchDB(searchQuery)
             println("Found ${searchResult.size} matching files.")
             if (searchResult.isNotEmpty()) {
+                println("File Name | Matches | Word count")
                 searchResult.forEach { file ->
-                    println(file)
+                    println("${file.first} | ${file.second} | ${file.third}")
                 }
             }
 
@@ -62,24 +64,3 @@ fun menu(): Int {
     return userInput
 }
 
-fun createDirs() { //Create necessary directories (on startup)
-    val inputDir = File("filesToRead")
-    val outputDir = File("processedFiles")
-    val databaseDir = File("database")
-
-
-    // Check if input directory exists or create it if it doesn't
-    if (!inputDir.exists() || !inputDir.isDirectory) {
-        inputDir.mkdirs()
-    }
-
-    // Check if output directory exists or create it if it doesn't
-    if (!outputDir.exists() || !outputDir.isDirectory) {
-        outputDir.mkdirs()
-    }
-
-    // Check if database directory exists or create it if it doesn't
-    if (!databaseDir.exists() || !databaseDir.isDirectory) {
-        databaseDir.mkdirs()
-    }
-}

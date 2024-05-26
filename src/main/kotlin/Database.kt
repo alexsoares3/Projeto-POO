@@ -1,7 +1,5 @@
 import java.sql.*
 
-// Quando tem muitos ficheiros o envio para a db demora um bocado (optimizar fun insertFilesInDB()?)
-
 // Start connection to DB
 fun getConnection(): Connection {
     Class.forName("org.sqlite.JDBC") //Load the JDBC driver class for SQLite

@@ -8,16 +8,17 @@ import java.nio.file.StandardCopyOption
 // Every time a File is instantiated the File.readFile() runs, then File.processWords() runs. Files are then moved to a different folder.
 // Finally files are added to the database in tables files(id, fileName) and file_words(file_id,word,count)
 fun processFiles() {
-    val inputDir = File("filesToRead") //Input directory
-    val outputDir = File("processedFiles") //Input directory
+    val directories = createDirectories()
+    val inputDir = directories["input"] //Input directory
+    val outputDir = directories["output"] //Output directory
     val fileList: MutableList<File_base> = mutableListOf()
 
-    val outputDirList = outputDir.listFiles()?.map { it.name } ?: emptyList()
+    val outputDirList = outputDir?.listFiles()?.map { it.name } ?: emptyList()
 
     val skipTracker = mutableListOf<String>()
 
     //iterate through all files in dir
-    inputDir.listFiles()?.forEach { file ->
+    inputDir?.listFiles()?.forEach { file ->
 
         if (file.isFile && !outputDirList.contains(file.name)) { //verify if normal file and if file is already processed
             if (file.extension.equals("pdf", ignoreCase = true)) {
@@ -44,12 +45,7 @@ fun processFiles() {
 }
 
 fun moveFiles(processedFiles: List<File_base>) {
-    val outputDir = File("processedFiles")
-
-    // Create the destination directory if it doesn't exist
-    if (!outputDir.exists()) {
-        outputDir.mkdirs()
-    }
+    val outputDir = createDirectories()["output"]
 
     // Iterate through processed files and move them
     processedFiles.forEach { file ->
@@ -66,4 +62,29 @@ fun moveFiles(processedFiles: List<File_base>) {
             }
         }
     }
+}
+
+fun createDirectories(): Map<String, File> { //Create necessary directories (on startup)
+    val inputDir = File("filesToRead")
+    val outputDir = File("processedFiles")
+    val databaseDir = File("database")
+    val directories = mapOf("input" to inputDir, "output" to outputDir, "database" to databaseDir)
+
+
+    // Check if input directory exists or create it if it doesn't
+    if (!inputDir.exists() || !inputDir.isDirectory) {
+        inputDir.mkdirs()
+    }
+
+    // Check if output directory exists or create it if it doesn't
+    if (!outputDir.exists() || !outputDir.isDirectory) {
+        outputDir.mkdirs()
+    }
+
+    // Check if database directory exists or create it if it doesn't
+    if (!databaseDir.exists() || !databaseDir.isDirectory) {
+        databaseDir.mkdirs()
+    }
+
+    return directories
 }
