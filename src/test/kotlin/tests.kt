@@ -15,7 +15,7 @@ class MainTest {
         val outputDir = File("processedFiles")
         val databaseDir = File("database")
 
-        createDirs()
+        createDirectories()
 
         assertTrue(inputDir.exists())
         assertTrue(outputDir.exists())
