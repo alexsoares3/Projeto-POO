@@ -1,0 +1,14 @@
+1 - gradlew shadowJar
+2 - java -jar VaultView-all.jar
+
+When code is changed do "gradlew clean shadowJar" and go back to step 1
+
+To get all commands do
+java -jar VaultView-all.jar --help
+
+To execute with arguments do
+java -jar VaultView-all.jar search word
+
+with multiple words do
+java -jar VaultView-all.jar search word1 word2
+
