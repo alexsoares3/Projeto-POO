@@ -46,6 +46,11 @@ fun processFiles() {
 
     // Insert processed files in database
     insertFilesInDB(fileList)
+
+    if (fileList.isNotEmpty()) {
+        println("Loaded ${fileList.size} file(s).")
+    }
+
 }
 
 fun moveFiles(processedFiles: List<File_base>) {

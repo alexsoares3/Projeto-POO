@@ -6,13 +6,16 @@ import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import createDirectories
+import getAllFiles
 import processFiles
+import resetDB
 import searchDB
 
+
+// TODO, Add word cloud subcommand, takes number of words as argument
+// TODO, Add load command to load files into database from another directory? Copy/move files to directory?
 class MainCommand : CliktCommand() {
     init {
-        //Create necessary directories on startup
-        createDirectories()
         // Process files on startup
         processFiles()
     }
@@ -35,6 +38,27 @@ class SearchCommand : CliktCommand(name = "search", help = "Searches the databas
     }
 }
 
+class ListCommand : CliktCommand(name = "list", help = "Lists all files in the database") {
+    override fun run() {
+        val fileList = getAllFiles()
+        println("Found ${fileList.size} matching files.")
+        if (fileList.isNotEmpty()) {
+            println("File Name")
+            var count = 0
+            fileList.forEach { file ->
+                count++
+                println("${count}. ${file.first}")
+            }
+        }
+    }
+}
+
+class ResetCommand : CliktCommand(name = "reset", help = "Resets the database, gives use the option to delete all files") {
+    override fun run() {
+        resetDB()
+    }
+}
+
 fun main(args: Array<String>) = MainCommand()
-    .subcommands(SearchCommand())
+    .subcommands(SearchCommand(), ListCommand(), ResetCommand())
     .main(args)
