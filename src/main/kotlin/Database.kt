@@ -1,4 +1,9 @@
+import java.io.File
+import java.io.FileNotFoundException
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.sql.*
+import java.util.*
 
 // Start connection to DB
 fun getConnection(): Connection {
@@ -126,9 +131,9 @@ fun searchDB(words: String): List<Triple<String, List<String>, Int>> {
 
     // Return empty list if input is empty
     // Not sure if necessary, since it might be useful to check what files are stored
-    /*if (words.isBlank()) {
+    if (words.isBlank()) {
         return emptyList()
-    }*/
+    }
 
     // Split the input string into a list of words
     val wordList = words.split(" ")
@@ -201,4 +206,62 @@ fun searchDB(words: String): List<Triple<String, List<String>, Int>> {
 
     // Return the fileList
     return fileList
+}
+
+fun resetDB() {
+    val connection = getConnection()
+    val sqlFiles = "DELETE FROM files"
+    val sqlFileWords = "DELETE FROM file_words"
+
+    val statementFiles: Statement = connection.createStatement()
+    val statementFileWords: Statement = connection.createStatement()
+
+    statementFiles.executeUpdate(sqlFiles)
+    statementFileWords.executeUpdate(sqlFileWords)
+
+    statementFiles.close()
+    statementFileWords.close()
+    connection.close()
+    println("Database reset.")
+
+    var answer = ""
+    while (answer != "y" && answer != "n") {
+        print("Do you want to delete the files? (y/n) ")
+        answer = readln().lowercase(Locale.getDefault())
+    }
+    val directories = createDirectories()
+    if (answer == "y") {
+        val outputDir = directories["output"]
+        var fileCounter = 0
+        outputDir?.listFiles()?.forEach { file ->
+                try {
+                    file.delete()
+                    fileCounter++
+                } catch (e: FileNotFoundException) {
+                    println("File not found: ${file}.")
+                }   catch (e: Exception) {
+                    e.printStackTrace()
+                }
+        }
+        println("Deleted $fileCounter file(s).")
+    } else {
+        // Move files back to input directory so they can be processed again.
+        val outputDir = directories["output"]
+        val inputDir = directories["input"]
+        var fileCounter = 0
+        outputDir?.listFiles()?.forEach { file ->
+            val sourceFile = file.toPath()
+            val destinationFile = File(inputDir, sourceFile.fileName.toString())
+            try {
+                Files.move(sourceFile, destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                fileCounter++
+            } catch (e: FileNotFoundException) {
+                println("File not found: ${sourceFile}.")
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+
+        }
+        println("Moved $fileCounter file(s) back to input directory.")
+    }
 }

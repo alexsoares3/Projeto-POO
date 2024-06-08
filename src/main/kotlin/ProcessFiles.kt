@@ -17,8 +17,12 @@ fun processFiles() {
 
     val skipTracker = mutableListOf<String>()
 
+    if (!inputDir?.listFiles()?.isEmpty()!!) {
+        println("Loading files...")
+    }
+
     //iterate through all files in dir
-    inputDir?.listFiles()?.forEach { file ->
+    inputDir.listFiles()?.forEach { file ->
 
         if (file.isFile && !outputDirList.contains(file.name)) { //verify if normal file and if file is already processed
             if (file.extension.equals("pdf", ignoreCase = true)) {
@@ -35,13 +39,18 @@ fun processFiles() {
 
     }
     if (skipTracker.isNotEmpty()) {
-        println("Skipped ${skipTracker.size} files.")
+        println("Skipped ${skipTracker.size} file(s).")
     }
     // Move processed files to output directory
     moveFiles(fileList)
 
     // Insert processed files in database
     insertFilesInDB(fileList)
+
+    if (fileList.isNotEmpty()) {
+        println("Loaded ${fileList.size} file(s).")
+    }
+
 }
 
 fun moveFiles(processedFiles: List<File_base>) {
