@@ -72,12 +72,12 @@ fun insertFilesInDB(fileList: List<File_base>) {
         // Insert word counts
         fileId?.let { id ->
             file.wordList?.forEach { (word, count) ->
-                if (count > 2) {
-                    insertWordStatement.setInt(1, id)
-                    insertWordStatement.setString(2, word)
-                    insertWordStatement.setInt(3, count)
-                    insertWordStatement.addBatch()
-                }
+
+                insertWordStatement.setInt(1, id)
+                insertWordStatement.setString(2, word)
+                insertWordStatement.setInt(3, count)
+                insertWordStatement.addBatch()
+
             }
         }
     }
