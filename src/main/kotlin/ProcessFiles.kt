@@ -32,6 +32,8 @@ fun processFiles() {
                 fileList += FilePPTX(file, null, false)
             } else if (file.extension.equals("docx", ignoreCase = true)) {
                 fileList += FileDOCX(file, null, false)
+            } else if (file.extension.equals("txt", ignoreCase = true)) {
+                fileList += FileDOCX(file, null, false)
             }
         } else {
             skipTracker += file.name
