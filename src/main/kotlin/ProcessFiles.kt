@@ -23,42 +23,51 @@ fun processFiles() {
 
     if (!inputDir?.listFiles()?.isEmpty()!!) {
         println("Loading files...")
-    }
 
-    //iterate through all files in dir
-    inputDir.listFiles()?.forEach { file ->
+        val totalFiles = inputDir.listFiles()?.size ?: 0
+        val numberOfUpdates = 4 // number of updates that will be given
+        val updateIncrement = totalFiles / numberOfUpdates // number of files processed per update
+        var filesProcessed = 0
+        //iterate through all files in dir
+        inputDir.listFiles()?.forEach { file ->
 
-        if (file.isFile && !outputDirList.contains(file.name)) { //verify if normal file and if file is already processed
-            if (file.extension.equals("pdf", ignoreCase = true)) {
-                fileList += FilePDF(file, null, false)
+            if (file.isFile && !outputDirList.contains(file.name)) { //verify if normal file and if file is already processed
+                if (file.extension.equals("pdf", ignoreCase = true)) {
+                    fileList += FilePDF(file, null, false)
 
-            } else if (file.extension.equals("pptx", ignoreCase = true)) {
-                fileList += FilePPTX(file, null, false)
+                } else if (file.extension.equals("pptx", ignoreCase = true)) {
+                    fileList += FilePPTX(file, null, false)
 
-            } else if (file.extension.equals("docx", ignoreCase = true)) {
-                fileList += FileDOCX(file, null, false)
+                } else if (file.extension.equals("docx", ignoreCase = true)) {
+                    fileList += FileDOCX(file, null, false)
 
-            } else if (file.extension.equals("txt", ignoreCase = true)) {
-                fileList += FileTXT(file, null, false)
+                } else if (file.extension.equals("txt", ignoreCase = true)) {
+                    fileList += FileTXT(file, null, false)
+                }
+                filesProcessed++
+                // calculate progress in %
+                if (filesProcessed % updateIncrement == 0) {
+                    val progress = (filesProcessed.toDouble() / totalFiles) * 100
+                    print(" ${(progress).toInt()}% -")
+                }
+            } else {
+                skipTracker += file.name
             }
-        } else {
-            skipTracker += file.name
+
         }
+        if (skipTracker.isNotEmpty()) {
+            println("Skipped ${skipTracker.size} file(s).")
+        }
+        // Move processed files to output directory
+        moveFiles(fileList)
 
+        // Insert processed files in database
+        insertFilesInDB(fileList)
+
+        if (fileList.isNotEmpty()) {
+            println(" 100% - Loaded ${fileList.size} file(s).")
+        }
     }
-    if (skipTracker.isNotEmpty()) {
-        println("Skipped ${skipTracker.size} file(s).")
-    }
-    // Move processed files to output directory
-    moveFiles(fileList)
-
-    // Insert processed files in database
-    insertFilesInDB(fileList)
-
-    if (fileList.isNotEmpty()) {
-        println("Loaded ${fileList.size} file(s).")
-    }
-
 }
 
 fun moveFiles(processedFiles: List<File_base>) {
