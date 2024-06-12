@@ -53,3 +53,7 @@ database/database.db
 !pdf_test.pdf
 .idea/dataSources.xml
 .idea/misc.xml
+
+!docx_test.docx
+!pptx_test.pptx
+!txt_test.txt
