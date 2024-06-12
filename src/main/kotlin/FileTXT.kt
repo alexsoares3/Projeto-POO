@@ -25,8 +25,6 @@ class FileTXT(path: File, wordList: Map<String, Int>?, processed : Boolean) : Fi
         } catch (e: Exception) {
             // Handle exceptions
             e.printStackTrace()
-        } catch (e: FileNotFoundException) {
-            println("File not found: ${path.name}. Skipping.")
         }
     }
 }

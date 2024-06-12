@@ -6,12 +6,14 @@ import java.sql.*
 import java.util.*
 
 // Start connection to DB
+// TODO Add try catch to database connection
 fun getConnection(): Connection {
     Class.forName("org.sqlite.JDBC") //Load the JDBC driver class for SQLite
     return DriverManager.getConnection("jdbc:sqlite:database/database.db") //Establish a connection to SQLite database
 }
 
 // Create necessary tables to store files/words
+// TODO Add try catch to table creation in DB where executeUpdate is used
 fun createTables() {
     val connection = getConnection()
     val statement = connection.createStatement()
@@ -55,6 +57,7 @@ fun insertFilesInDB(fileList: List<File_base>) {
     // Changes are first stored in memory and then committed to the database
     // Tested with 250 files and was faster than inserting 50 files previously
     // Start transaction
+    // TODO Add try catch from here to when transaction is committed
     connection.autoCommit = false
 
     for (file in fileList) {
@@ -109,6 +112,7 @@ fun getAllFiles(): List<Pair<String, Int>> {
         GROUP BY f.name """.trimIndent()
 
     val statement: Statement = connection.createStatement()
+    // TODO Add try catch here
     val resultSet: ResultSet = statement.executeQuery(sql)
 
     while (resultSet.next()) {
@@ -160,6 +164,7 @@ fun searchDB(words: String): List<Triple<String, List<String>, Int>> {
     // Prepare the SQL statement
     val statement: PreparedStatement = connection.prepareStatement(sql)
 
+    // TODO Add try catch here
     // Start transaction
     connection.autoCommit = false
     // Execute the SQL query and get the result set
@@ -208,6 +213,8 @@ fun searchDB(words: String): List<Triple<String, List<String>, Int>> {
     return fileList
 }
 
+// This function resets the database, it also gives the user the option to delete the files in the output directory
+// or simply move them back to input folder
 fun resetDB() {
     val connection = getConnection()
     val sqlFiles = "DELETE FROM files"
@@ -224,6 +231,7 @@ fun resetDB() {
     connection.close()
     println("Database reset.")
 
+    // Confirm if user wants to delete files
     var answer = ""
     while (answer != "y" && answer != "n") {
         print("Do you want to delete the files? (y/n) ")
@@ -265,3 +273,5 @@ fun resetDB() {
         println("Moved $fileCounter file(s) back to input directory.")
     }
 }
+
+// TODO Add function wordCloud that takes an int as input and return the x number of words with the most occurences

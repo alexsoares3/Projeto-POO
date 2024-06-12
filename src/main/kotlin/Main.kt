@@ -11,6 +11,7 @@ import kotlin.system.exitProcess
 // classe vai ser feita automaticamente a leitura/extracao do texto e define o campo wordList com a lista/nr de palavras. Depois exporta para a db
 //Podem usar os ficheiros em testSample.rar para testar
 
+//TODO Remove this whole page since right now its only for testing (cli implemented)
 
 fun main() {
     //Create necessary directories on startup

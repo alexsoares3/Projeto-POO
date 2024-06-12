@@ -7,6 +7,10 @@ import java.nio.file.StandardCopyOption
 // processFiles() > readFile() from all objects > processWords() from all objects > moveFiles() > insertFilesInDB()
 // Every time a File is instantiated the File.readFile() runs, then File.processWords() runs. Files are then moved to a different folder.
 // Finally files are added to the database in tables files(id, fileName) and file_words(file_id,word,count)
+// TODO Modify this function (after doing the CLI subcommand load) to take a folder path as an argument (which can also be empty/null).
+// TODO Make sure to send null/empty when no path is provided or handle that in the function itself
+// TODO If folder path is not null instead of using inputDir, then it will process all files in the folderPath received.
+// TODO Maybe instead of moving the files to output directory, add a copyFiles (similar to moveFiles) function to be used when loading files from other folders
 fun processFiles() {
     val directories = createDirectories()
     val inputDir = directories["input"] //Input directory
