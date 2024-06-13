@@ -8,10 +8,17 @@ import java.util.*
 // Start connection to DB
 // TODO Add try catch to database connection
 fun getConnection(): Connection {
-    Class.forName("org.sqlite.JDBC") //Load the JDBC driver class for SQLite
-    return DriverManager.getConnection("jdbc:sqlite:database/database.db") //Establish a connection to SQLite database
+    return try {
+        Class.forName("org.sqlite.JDBC") // Load the JDBC driver class for SQLite
+        DriverManager.getConnection("jdbc:sqlite:database/database.db") // Establish a connection to SQLite database
+    } catch (e: ClassNotFoundException) {
+        e.printStackTrace() // Tratar a exceção da classe não encontrada
+        throw RuntimeException("Driver JDBC não encontrado", e)
+    } catch (e: SQLException) {
+        e.printStackTrace() // Lidar com exceção SQL
+        throw RuntimeException("Falha ao estabelecer conexão com o banco de dados", e)
+    }
 }
-
 // Create necessary tables to store files/words
 // TODO Add try catch to table creation in DB where executeUpdate is used
 fun createTables() {
