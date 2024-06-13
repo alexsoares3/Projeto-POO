@@ -1,22 +1,22 @@
-# File management
+# VaultView - File management
 
 ## Description
 
-This project is a tool for managing and searching through a collection of PDF, PPTX and DOCX files. 
-The application allows you to dump a bunch of files into a specific directory, add the contents of these files to a database, and then search for specific content across all the dumped files.
+This project is a tool for managing and searching through a collection of PDF, PPTX, DOCX and TXT files. 
+The application allows you to dump a bunch of files into a specific directory, add the contents of these files to a database, and then search for specific content across all files.
 
 ## Features
 
-- **File Dumping**: You can dump a bunch of PDF, PPTX and DOCX files into a specific directory.
+- **File Processing**: You can place PDF, PPTX, DOCX and TXT files into a specific directory or load them in by providing a folder path.
 - **Database Management**: The contents of these files are added to a database, allowing for efficient management and retrieval.
-- **Content Search**: The application allows you to search for specific content across all the dumped files.
+- **Content Search**: The application allows you to search for specific content across all the files.
 
 ## Getting Started
 
 ### Prerequisites
 
-- JDK 11 or later
-- Gradle 7.0 or later
+- JDK 21 or later
+- Gradle 8.5 or later
 
 ### Installation
 
@@ -34,13 +34,28 @@ Follow these steps to install the application:
 
 3. **Build the Project**: Finally, build the project using Gradle with the following command:
     ```bash
-    gradle build
+    gradlew shadowJar
     ```
+   A jar file should now be available in `build/libs`.
 
 
 ## Usage
 
-1. Dump your PDF, PPTX and DOCX files into the `filesToRead` directory.
-2. Run the application. This will add the contents of the files to the database.
-3. Use the `search` function to search for specific content. The function takes a string of words as input, splits it into a list of words, and then searches for each word in the files.
+- Run the application using `java -jar VaultView.jar`. This will give you a list of available commands and create the necessary folders for you.
 
+
+
+## Available commands
+- `-h` or `--help` for a list of commands
+- `list` Lists all files in the database.
+- `search` Searches the database for files with matching words. Example: search word1 word2
+- `load` Allows you to load files from a directory of your choice and copies the processed files to the output directory.
+- `reset` Resets the database, gives you the option to delete all files in the output directory or copy them back to input directory.
+- All commands besides `load` and `reset` will load files from `filesToRead` folder when ran.
+#### Example:
+- `java -jar VaultView.jar list`
+- `java -jar VaultView.jar load C:\Users\testFolder`
+- `java -jar VaultView.jar search some words`
+- `java -jar VaultView.jar reset`
+
+    

@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "1.9.22"
-    id("com.github.johnrengelman.shadow") version "7.0.0"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "org.example"
@@ -12,10 +12,9 @@ repositories {
 
 dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
-    implementation("org.apache.poi:poi-ooxml:5.2.3") //PPTX
     implementation("org.apache.pdfbox:pdfbox:3.0.2") //PDF
-    implementation("org.xerial:sqlite-jdbc:3.36.0.3") //SQLite
-    implementation("org.apache.poi:poi-ooxml:5.2.4") //DOCX
+    implementation("org.xerial:sqlite-jdbc:3.41.2.2") //SQLite
+    implementation("org.apache.poi:poi-ooxml:5.2.5") //DOCX/PPTX
     implementation("com.github.ajalt.clikt:clikt:4.4.0") //CLI
     implementation(kotlin("stdlib"))
     // Log4j2 Core
@@ -34,6 +33,7 @@ tasks {
     shadowJar {
         archiveBaseName.set("VaultView")
         archiveVersion.set("")
+        archiveClassifier.set("") // Remove the -all from the filename
         manifest {
             attributes["Main-Class"] = "org.example.CliKt"
         }
