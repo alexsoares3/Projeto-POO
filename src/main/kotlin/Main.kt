@@ -21,7 +21,7 @@ fun main() {
         val menuInput = menu()
         if (menuInput == 1) {
             // processFiles() > readFile() from all objects > processWords() from all objects > moveFiles() > insertFilesInDB()
-            processFiles()
+            processFiles(null)
             //getAllFiles() to get every file available in the database
             println(getAllFiles())
 

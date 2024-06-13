@@ -7,15 +7,24 @@ import java.nio.file.StandardCopyOption
 // processFiles() > readFile() from all objects > processWords() from all objects > moveFiles() > insertFilesInDB()
 // Every time a File is instantiated the File.readFile() runs, then File.processWords() runs. Files are then moved to a different folder.
 // Finally files are added to the database in tables files(id, fileName) and file_words(file_id,word,count)
-// TODO Modify this function (after doing the CLI subcommand load) to take a folder path as an argument (which can also be empty/null).
-// TODO Make sure to send null/empty when no path is provided or handle that in the function itself
-// TODO If folder path is not null instead of using inputDir, then it will process all files in the folderPath received.
-// TODO Maybe instead of moving the files to output directory, add a copyFiles (similar to moveFiles) function to be used when loading files from other folders
-fun processFiles() {
+fun processFiles(folderPath: String?) {
     val directories = createDirectories()
-    val inputDir = directories["input"] //Input directory
+    var inputDir = directories["input"] //Input directory
     val outputDir = directories["output"] //Output directory
     val fileList: MutableList<File_base> = mutableListOf()
+    var usingFolderPath = false
+
+    // Check if a folderPath was received
+    if (folderPath != null) {
+        // Check if the folder exists
+        if (File(folderPath).exists()) {
+            inputDir = File(folderPath)
+            usingFolderPath = true
+        } else {
+            println("Invalid folder path.")
+            return
+        }
+    }
 
     val outputDirList = outputDir?.listFiles()?.map { it.name } ?: emptyList()
 
@@ -59,13 +68,17 @@ fun processFiles() {
             println("Skipped ${skipTracker.size} file(s).")
         }
         // Move processed files to output directory
-        moveFiles(fileList)
+        if (!usingFolderPath) {
+            moveFiles(fileList)
+        } else {
+            copyFiles(fileList)
+        }
 
         // Insert processed files in database
         insertFilesInDB(fileList)
 
         if (fileList.isNotEmpty()) {
-            println(" 100% - Loaded ${fileList.size} file(s).")
+            println(" Loaded ${fileList.size} file(s).")
         }
     }
 }
@@ -80,7 +93,26 @@ fun moveFiles(processedFiles: List<File_base>) {
             val destinationFile = File(outputDir, sourceFile.name)
 
             try {
-                Files.move(sourceFile.toPath(), destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                Files.move(sourceFile.toPath(), destinationFile.toPath())
+            } catch (e: FileNotFoundException) {
+                println("File not found: ${sourceFile.name}.")
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+}
+
+fun copyFiles(processedFiles: List<File_base>) {
+    val outputDir = createDirectories()["output"]
+    // Iterate through processed files and copy them
+    processedFiles.forEach { file ->
+        if (file.processed) {
+            val sourceFile = file.path
+            val destinationFile = File(outputDir, sourceFile.name)
+
+            try {
+                Files.copy(sourceFile.toPath(), destinationFile.toPath())
             } catch (e: FileNotFoundException) {
                 println("File not found: ${sourceFile.name}.")
             } catch (e: Exception) {
