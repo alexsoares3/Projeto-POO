@@ -6,7 +6,6 @@ import java.sql.*
 import java.util.*
 
 // Start connection to DB
-// TODO Add try catch to database connection
 fun getConnection(): Connection {
     return try {
         Class.forName("org.sqlite.JDBC") // Load the JDBC driver class for SQLite
@@ -20,27 +19,46 @@ fun getConnection(): Connection {
     }
 }
 // Create necessary tables to store files/words
-// TODO Add try catch to table creation in DB where executeUpdate is used
 fun createTables() {
-    val connection = getConnection()
-    val statement = connection.createStatement()
-    statement.executeUpdate("""
-        CREATE TABLE IF NOT EXISTS files (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT
+    var connection: Connection? = null
+    var statement: Statement? = null
+
+    try {
+        connection = getConnection()
+        statement = connection.createStatement()
+        statement.executeUpdate(
+            """
+            CREATE TABLE IF NOT EXISTS files (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT
+            )
+        """.trimIndent())
+
+        statement.executeUpdate(
+            """
+            CREATE TABLE IF NOT EXISTS file_words (
+                file_id INT,
+                word TEXT,
+                count INT,
+                FOREIGN KEY (file_id) REFERENCES files(id)
+            )
+        """.trimIndent()
         )
-    """.trimIndent())
-    statement.executeUpdate("""
-        CREATE TABLE IF NOT EXISTS file_words (
-            file_id INT,
-            word TEXT,
-            count INT,
-            FOREIGN KEY (file_id) REFERENCES files(id)
-        )
-    """.trimIndent())
-    statement.close()
-    // Close connection
-    connection.close()
+    } catch (e: SQLException){
+        e.printStackTrace() //Lidar com exceção SQL
+        throw RuntimeException("Erro ao criar tabelas no banco de dados", e)
+    } finally {
+        try {
+            statement?.close()
+        } catch (e: SQLException){
+            e.printStackTrace() // Lidar com exceção ao fechar stantement
+        }
+        try {
+            connection?.close()
+        } catch (e: SQLException){
+            e.printStackTrace() // Lidar com exceção ao fechar a conexão
+        }
+    }
 }
 
 // Iterates through all files in fileList then iterates through each file's words and if the word has more than 2 chars it gets added to the database.
@@ -61,40 +79,69 @@ fun insertFilesInDB(fileList: List<File_base>) {
     // Changes are first stored in memory and then committed to the database
     // Tested with 250 files and was faster than inserting 50 files previously
     // Start transaction
-    // TODO Add try catch from here to when transaction is committed
-    connection.autoCommit = false
+    try {
+        connection.autoCommit = false
 
-    for (file in fileList) {
-        // Insert file information
-        insertFileStatement.setString(1, file.path.name)
-        insertFileStatement.executeUpdate()
+        for (file in fileList) {
+            try {
+                // Insert file information
+            insertFileStatement.setString(1, file.path.name)
+            insertFileStatement.executeUpdate()
 
-        // Get the generated file ID
-        val fileIdResultSet = insertFileStatement.generatedKeys //Uses the returned IDs
-        var fileId: Int? = null
-        if (fileIdResultSet.next()) {
-            fileId = fileIdResultSet.getInt(1)
-        }
-
-        // Insert word counts
-        fileId?.let { id ->
-            file.wordList?.forEach { (word, count) ->
-
-                insertWordStatement.setInt(1, id)
-                insertWordStatement.setString(2, word)
-                insertWordStatement.setInt(3, count)
-                insertWordStatement.addBatch()
-
+            // Get the generated file ID
+            val fileIdResultSet = insertFileStatement.generatedKeys //Uses the returned IDs
+            var fileId: Int? = null
+            if (fileIdResultSet.next()) {
+                fileId = fileIdResultSet.getInt(1)
             }
+
+            // Insert word counts
+            fileId?.let { id ->
+                file.wordList?.forEach { (word, count) ->
+
+                    insertWordStatement.setInt(1, id)
+                    insertWordStatement.setString(2, word)
+                    insertWordStatement.setInt(3, count)
+                    insertWordStatement.addBatch()
+
+                }
+            }
+        } catch (e: SQLException){
+            e.printStackTrace()
+            throw RuntimeException("Erro ao inserir dados para o arquivo: ${file.path.name}", e)
         }
     }
+        // Execute batch insert for word counts
+        insertWordStatement.executeBatch()
 
-    // Execute batch insert for word counts
-    insertWordStatement.executeBatch()
-
-    // Commit transaction
-    connection.commit()
-
+        // Commit transaction
+        connection.commit()
+    } catch (e: SQLException) {
+        e.printStackTrace()
+        try {
+            connection.rollback() //Transação de reversão em caso de erro
+        } catch (rollbackEx: SQLException) {
+            rollbackEx.printStackTrace()
+            throw RuntimeException("Erro ao fazer rollback da transação", rollbackEx)
+        }
+        throw RuntimeException("Erro ao executar transação no banco de dados", e)
+    } finally {
+        try {
+            insertWordStatement.close()
+        } catch (e: SQLException) {
+            e.printStackTrace()
+        }
+        try {
+            connection.autoCommit = true
+        } catch (e: SQLException) {
+            e.printStackTrace()
+        }
+        try {
+            connection.close()
+        } catch (e: SQLException) {
+            e.printStackTrace()
+        }
+    }
     // Close statements
     insertFileStatement.close()
     insertWordStatement.close()
@@ -102,8 +149,6 @@ fun insertFilesInDB(fileList: List<File_base>) {
     // Close connection
     connection.close()
 }
-
-
 // Returns all available files and how many words are associated with them
 fun getAllFiles(): List<Pair<String, Int>> {
     val connection = getConnection()
@@ -187,7 +232,6 @@ fun searchDB(words: String): List<Triple<String, List<String>, Int>> {
         connection.autoCommit = false
         // Execute the SQL query and get the result set
         val resultSet: ResultSet = statement.executeQuery()
-
 
         // Store the names of the files that contain all the words (or similar) in the wordList
         val fileWordsMap = mutableMapOf<String, Pair<MutableList<String>, Int>>()
