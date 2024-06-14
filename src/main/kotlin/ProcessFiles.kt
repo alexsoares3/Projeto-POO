@@ -9,10 +9,10 @@ import java.nio.file.StandardCopyOption
 // Finally files are added to the database in tables files(id, fileName) and file_words(file_id,word,count)
 fun processFiles(folderPath: String?) {
     val directories = createDirectories()
-    var inputDir = directories["input"] //Input directory
-    val outputDir = directories["output"] //Output directory
+    var inputDir = directories["input"]
+    val outputDir = directories["output"]
     val fileList: MutableList<File_base> = mutableListOf()
-    var usingFolderPath = false
+    var usingFolderPath = false // flag to check if a folder path was received
 
     // Check if a folderPath was received
     if (folderPath != null) {
@@ -33,10 +33,15 @@ fun processFiles(folderPath: String?) {
     if (!inputDir?.listFiles()?.isEmpty()!!) {
         println("Loading files...")
 
-        val totalFiles = inputDir.listFiles()?.size ?: 0
-        val numberOfUpdates = 4 // number of updates that will be given
-        val updateIncrement = totalFiles / numberOfUpdates // number of files processed per update
-        var filesProcessed = 0
+        val totalFiles = inputDir.listFiles()?.size ?: 0 // total number of files in input directory
+        var filesProcessed = 0 // keep a count of files processed
+        var showProgress = false
+        var progress = 0.0
+
+        if (totalFiles > 10) { // show progress if there are more than 10 files
+            showProgress = true
+        }
+
         //iterate through all files in dir
         inputDir.listFiles()?.forEach { file ->
 
@@ -53,20 +58,26 @@ fun processFiles(folderPath: String?) {
                 } else if (file.extension.equals("txt", ignoreCase = true)) {
                     fileList += FileTXT(file, null, false)
                 }
-                filesProcessed++
-                // calculate progress in %
-                if (filesProcessed % updateIncrement == 0) {
-                    val progress = (filesProcessed.toDouble() / totalFiles) * 100
-                    print(" ${(progress).toInt()}% -")
+                if (showProgress) {
+                    filesProcessed++
+                    val numberOfUpdates = 4 // number of updates that will be given
+                    val updateIncrement = totalFiles / numberOfUpdates // number of files processed per update
+                    // calculate progress in %
+                    if (filesProcessed % updateIncrement == 0) {
+                        try {
+                            progress = (filesProcessed.toDouble() / totalFiles) * 100
+                        } catch (e: ArithmeticException) {
+                            e.printStackTrace()
+                        } finally {
+                            print(" ${(progress).toInt()}% -")
+                        }
+                    }
                 }
             } else {
                 skipTracker += file.name
             }
+        }
 
-        }
-        if (skipTracker.isNotEmpty()) {
-            println("Skipped ${skipTracker.size} file(s).")
-        }
         // Move processed files to output directory
         if (!usingFolderPath) {
             moveFiles(fileList)
@@ -79,6 +90,9 @@ fun processFiles(folderPath: String?) {
 
         if (fileList.isNotEmpty()) {
             println(" Loaded ${fileList.size} file(s).")
+        }
+        if (skipTracker.isNotEmpty()) {
+            println("Skipped ${skipTracker.size} file(s). (Already in output directory.)")
         }
     }
 }
