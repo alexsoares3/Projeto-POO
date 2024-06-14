@@ -9,9 +9,9 @@ import getAllFiles
 import processFiles
 import resetDB
 import searchDB
+import wordCloud
 
 
-// TODO, Add word cloud subcommand, takes number of words as argument
 class MainCommand : CliktCommand() {
     override fun run() = Unit
 }
@@ -59,6 +59,20 @@ class LoadCommand : CliktCommand(name = "load", help = "Loads files from a given
         processFiles(path)
     }
 }
+class WordCloudCommand : CliktCommand(name = "cloud", help = "Returns the x amount of most common words in the database.") {
+    private val nrWords by argument()
+    override fun run() {
+        val wordCloudList = wordCloud(nrWords)
+        var count = 0
+        if (wordCloudList.isNotEmpty()) {
+            println("Word | Count")
+            wordCloudList.forEach { file ->
+                count++
+                println("${count}. ${file.first} | ${file.second}")
+            }
+        }
+    }
+}
 
 fun main(args: Array<String>) {
     // check if reset command is in the arguments
@@ -68,6 +82,6 @@ fun main(args: Array<String>) {
 
     // run clikt application
     MainCommand()
-        .subcommands(ListCommand(), SearchCommand(), LoadCommand(), ResetCommand())
+        .subcommands(ListCommand(), SearchCommand(), LoadCommand(), ResetCommand(), WordCloudCommand())
         .main(args)
 }

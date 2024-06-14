@@ -59,7 +59,6 @@ fun insertFilesInDB(fileList: List<File_base>) {
     val insertFileStatement = connection.prepareStatement(insertFileSql, Statement.RETURN_GENERATED_KEYS)
     val insertWordStatement = connection.prepareStatement(insertWordSql)
 
-
     // Transaction will make everything be inserted at once instead of one by one
     // Changes are first stored in memory and then committed to the database
     // Tested with 250 files and was faster than inserting 50 files previously
@@ -119,16 +118,19 @@ fun getAllFiles(): List<Pair<String, Int>> {
         GROUP BY f.name """.trimIndent()
 
     val statement: Statement = connection.createStatement()
-    // TODO Add try catch here
-    val resultSet: ResultSet = statement.executeQuery(sql)
+    try {
+        val resultSet: ResultSet = statement.executeQuery(sql)
 
-    while (resultSet.next()) {
-        val path = resultSet.getString("name")
-        val wordCount = resultSet.getInt("word_count")
-        fileList.add(path to wordCount)
+        while (resultSet.next()) {
+            val path = resultSet.getString("name")
+            val wordCount = resultSet.getInt("word_count")
+            fileList.add(path to wordCount)
+        }
+        resultSet.close()
+    } catch (e: SQLException) {
+        e.printStackTrace()
+        throw RuntimeException("Falha na pesquisa dos dados")
     }
-
-    resultSet.close()
     statement.close()
     // Close connection
     connection.close()
@@ -281,4 +283,38 @@ fun resetDB() {
     }
 }
 
-// TODO Add function wordCloud that takes an int as input and return the x number of words with the most occurences
+// wordCloud returns the x amount of most common words
+fun wordCloud(nrWords: String): List<Pair<String, Int>> {
+    val nrWordsInt: Int = try {
+        nrWords.toInt()
+    } catch (e: NumberFormatException) {
+        println("Invalid input. Please enter a number.")
+        return emptyList()
+    }
+    val connection = getConnection()
+    val sql = """
+        SELECT word, COUNT(*) as totalCount
+        FROM file_words
+        GROUP BY word
+        ORDER BY totalCount DESC
+        LIMIT ?
+    """.trimIndent()
+
+    val statement: PreparedStatement = connection.prepareStatement(sql)
+    statement.setInt(1, nrWordsInt)
+
+    val resultSet: ResultSet = statement.executeQuery()
+    val commonWords = mutableListOf<Pair<String, Int>>()
+
+    while (resultSet.next()) {
+        val word = resultSet.getString("word")
+        val totalCount = resultSet.getInt("totalCount")
+        commonWords.add(word to totalCount)
+    }
+
+    resultSet.close()
+    statement.close()
+    connection.close()
+
+    return commonWords
+}
