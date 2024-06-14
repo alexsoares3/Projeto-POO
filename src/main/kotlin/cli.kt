@@ -70,6 +70,8 @@ class WordCloudCommand : CliktCommand(name = "cloud", help = "Returns the x amou
                 count++
                 println("${count}. ${file.first} | ${file.second}")
             }
+        } else {
+            println("No results found.")
         }
     }
 }

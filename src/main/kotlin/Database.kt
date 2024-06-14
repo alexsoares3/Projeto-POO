@@ -153,6 +153,7 @@ fun insertFilesInDB(fileList: List<File_base>) {
 fun getAllFiles(): List<Pair<String, Int>> {
     val connection = getConnection()
     val fileList = mutableListOf<Pair<String, Int>>()
+    createTables()
 
     val sql = """
         SELECT f.name, COUNT(w.word) AS word_count
@@ -196,6 +197,7 @@ fun checkIfDBExists(): Boolean {
 // It takes a string of words as input, splits it into a list of words, and then searches for each word in the files.
 fun searchDB(words: String): List<Triple<String, List<String>, Int>> {
     if (checkIfDBExists()) {
+        createTables()
         // Return empty list if input is empty
         // Not sure if necessary, since it might be useful to check what files are stored
         if (words.isBlank()) {
@@ -284,9 +286,10 @@ fun searchDB(words: String): List<Triple<String, List<String>, Int>> {
 // or simply move them back to input folder
 fun resetDB() {
     if(checkIfDBExists()) {
+        createTables()
         val connection = getConnection()
-        val sqlFiles = "DELETE * FROM files IF EXISTS"
-        val sqlFileWords = "DELETE * FROM file_words IF EXISTS"
+        val sqlFiles = "DELETE FROM files"
+        val sqlFileWords = "DELETE FROM file_words"
 
         val statementFiles: Statement = connection.createStatement()
         val statementFileWords: Statement = connection.createStatement()
